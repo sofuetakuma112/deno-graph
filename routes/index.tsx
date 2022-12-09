@@ -30,6 +30,7 @@ export const handler: Handlers<any> = {
     return ctx.render({ prefs });
   },
   async POST(req, ctx) {
+    const prefs = await fetchPrefs(apiKey);
     // フォームデータの入力値を取得
     const formData = await req.formData();
     const prefIds = formData
@@ -38,7 +39,7 @@ export const handler: Handlers<any> = {
       .split(",")
       .filter(Boolean);
     if (!prefIds || !prefIds.length || prefIds.length > 10) {
-      return ctx.render({ error: "prefIdsが不正" });
+      return ctx.render({ prefs, checkedIds: [] });
     }
 
     const urlAndPrefIds = prefIds.map((prefId) => ({
@@ -65,8 +66,6 @@ export const handler: Handlers<any> = {
       jsons.push(...subResults);
       await sleep(1);
     }
-
-    const prefs = await fetchPrefs(apiKey);
 
     const totalPopulations = jsons.map(({ prefId, result }) => {
       const totalPopulation = result.data.find(
