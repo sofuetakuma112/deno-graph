@@ -83,23 +83,13 @@ export default function InteractiveGraph({ options }: Props) {
       fill: false,
     }));
 
-    // if (chartRef.current) {
-    //   console.log("すでにインスタンスは生成している");
-    //   // すでにインスタンスは生成している
-    //   chartRef.current.data.datasets = chartDataSets;
-    //   chartRef.current.data.labels = xLabels;
-    // } else if (canvasRef.current) {
-    //   console.log("インスタンス未生成");
-    //   chartRef.current = new Chart(canvasRef.current, {
-    //     type: "line",
-    //     data: {
-    //       labels: xLabels,
-    //       datasets: chartDataSets,
-    //     },
-    //   });
-    // }
-
-    if (canvasRef.current) {
+    if (chartRef.current) {
+      // すでにインスタンスは生成している
+      chartRef.current.data.datasets = chartDataSets;
+      chartRef.current.data.labels = xLabels;
+      chartRef.current.update();
+    } else if (canvasRef.current) {
+      // インスタンス未生成
       chartRef.current = new Chart(canvasRef.current, {
         type: "line",
         data: {
