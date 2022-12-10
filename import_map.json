@@ -10,6 +10,9 @@
     "twind/": "https://esm.sh/twind@0.16.17/",
     "$fresh_charts/": "https://deno.land/x/fresh_charts@0.1.1/",
     "$fresh_charts": "https://deno.land/x/fresh_charts@0.1.1",
-    "dotenv/": "https://deno.land/x/dotenv@v3.2.0/"
+    "dotenv/": "https://deno.land/x/dotenv@v3.2.0/",
+    "chart.js": "https://esm.sh/stable/chart.js@2.9.3",
+    "chart.js/": "https://esm.sh/stable/chart.js@2.9.3/",
+    "react-query": "https://cdn.skypack.dev/react-query"
   }
 }

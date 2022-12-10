@@ -1,124 +1,226 @@
 import { Head } from "$fresh/runtime.ts";
+import { API_KEY, fetchPrefs } from "../api/resas.ts";
 import Header from "../components/Header.tsx";
+import InteractiveGraph from "../islands/InteractiveGraph.tsx";
 import { Handlers } from "$fresh/server.ts";
+import { createPrefOptions } from "../utils/resas.ts";
 
-import { Chart } from "$fresh_charts/mod.ts";
-
-import "dotenv/load.ts";
-import { sliceByNumber } from "../utils/array.ts";
-import { sleep } from "../utils/time.ts";
-import { colors } from "../consts/color.ts";
-
-const BASE_API_URL = "https://opendata.resas-portal.go.jp";
-const apiKey = Deno.env.get("RESAS_API_KEY") || "";
-
-const fetchPrefs = (apiKey: string) => {
-  return fetch(`${BASE_API_URL}/api/v1/prefectures`, {
-    method: "GET",
-    headers: apiKey
-      ? {
-          "X-API-KEY": apiKey,
-        }
-      : undefined,
-  }).then((response) => response.json());
-};
+// const cached = {
+//   message: null,
+//   result: [
+//     {
+//       prefCode: 1,
+//       prefName: "北海道",
+//     },
+//     {
+//       prefCode: 2,
+//       prefName: "青森県",
+//     },
+//     {
+//       prefCode: 3,
+//       prefName: "岩手県",
+//     },
+//     {
+//       prefCode: 4,
+//       prefName: "宮城県",
+//     },
+//     {
+//       prefCode: 5,
+//       prefName: "秋田県",
+//     },
+//     {
+//       prefCode: 6,
+//       prefName: "山形県",
+//     },
+//     {
+//       prefCode: 7,
+//       prefName: "福島県",
+//     },
+//     {
+//       prefCode: 8,
+//       prefName: "茨城県",
+//     },
+//     {
+//       prefCode: 9,
+//       prefName: "栃木県",
+//     },
+//     {
+//       prefCode: 10,
+//       prefName: "群馬県",
+//     },
+//     {
+//       prefCode: 11,
+//       prefName: "埼玉県",
+//     },
+//     {
+//       prefCode: 12,
+//       prefName: "千葉県",
+//     },
+//     {
+//       prefCode: 13,
+//       prefName: "東京都",
+//     },
+//     {
+//       prefCode: 14,
+//       prefName: "神奈川県",
+//     },
+//     {
+//       prefCode: 15,
+//       prefName: "新潟県",
+//     },
+//     {
+//       prefCode: 16,
+//       prefName: "富山県",
+//     },
+//     {
+//       prefCode: 17,
+//       prefName: "石川県",
+//     },
+//     {
+//       prefCode: 18,
+//       prefName: "福井県",
+//     },
+//     {
+//       prefCode: 19,
+//       prefName: "山梨県",
+//     },
+//     {
+//       prefCode: 20,
+//       prefName: "長野県",
+//     },
+//     {
+//       prefCode: 21,
+//       prefName: "岐阜県",
+//     },
+//     {
+//       prefCode: 22,
+//       prefName: "静岡県",
+//     },
+//     {
+//       prefCode: 23,
+//       prefName: "愛知県",
+//     },
+//     {
+//       prefCode: 24,
+//       prefName: "三重県",
+//     },
+//     {
+//       prefCode: 25,
+//       prefName: "滋賀県",
+//     },
+//     {
+//       prefCode: 26,
+//       prefName: "京都府",
+//     },
+//     {
+//       prefCode: 27,
+//       prefName: "大阪府",
+//     },
+//     {
+//       prefCode: 28,
+//       prefName: "兵庫県",
+//     },
+//     {
+//       prefCode: 29,
+//       prefName: "奈良県",
+//     },
+//     {
+//       prefCode: 30,
+//       prefName: "和歌山県",
+//     },
+//     {
+//       prefCode: 31,
+//       prefName: "鳥取県",
+//     },
+//     {
+//       prefCode: 32,
+//       prefName: "島根県",
+//     },
+//     {
+//       prefCode: 33,
+//       prefName: "岡山県",
+//     },
+//     {
+//       prefCode: 34,
+//       prefName: "広島県",
+//     },
+//     {
+//       prefCode: 35,
+//       prefName: "山口県",
+//     },
+//     {
+//       prefCode: 36,
+//       prefName: "徳島県",
+//     },
+//     {
+//       prefCode: 37,
+//       prefName: "香川県",
+//     },
+//     {
+//       prefCode: 38,
+//       prefName: "愛媛県",
+//     },
+//     {
+//       prefCode: 39,
+//       prefName: "高知県",
+//     },
+//     {
+//       prefCode: 40,
+//       prefName: "福岡県",
+//     },
+//     {
+//       prefCode: 41,
+//       prefName: "佐賀県",
+//     },
+//     {
+//       prefCode: 42,
+//       prefName: "長崎県",
+//     },
+//     {
+//       prefCode: 43,
+//       prefName: "熊本県",
+//     },
+//     {
+//       prefCode: 44,
+//       prefName: "大分県",
+//     },
+//     {
+//       prefCode: 45,
+//       prefName: "宮崎県",
+//     },
+//     {
+//       prefCode: 46,
+//       prefName: "鹿児島県",
+//     },
+//     {
+//       prefCode: 47,
+//       prefName: "沖縄県",
+//     },
+//   ],
+// };
 
 export const handler: Handlers<any> = {
   async GET(_, ctx) {
     // 都道府県を読み込む
-    const prefs = await fetchPrefs(apiKey);
+    const prefs = await fetchPrefs();
     return ctx.render({ prefs });
-  },
-  async POST(req, ctx) {
-    const prefs = await fetchPrefs(apiKey);
-    // フォームデータの入力値を取得
-    const formData = await req.formData();
-    const prefIds = formData
-      .get("prefIds")
-      ?.toString()
-      .split(",")
-      .filter(Boolean);
-    if (!prefIds || !prefIds.length || prefIds.length > 10) {
-      return ctx.render({ prefs, checkedIds: [] });
-    }
-
-    const urlAndPrefIds = prefIds.map((prefId) => ({
-      url: `${BASE_API_URL}/api/v1/population/composition/perYear?cityCode=-&prefCode=${prefId}`,
-      prefId,
-    }));
-
-    const jsons = [];
-    for (const subUrls of sliceByNumber(urlAndPrefIds, 5)) {
-      const subResults = await Promise.all(
-        subUrls.map(({ url, prefId }) =>
-          fetch(url, {
-            method: "GET",
-            headers: apiKey
-              ? {
-                  "X-API-KEY": apiKey,
-                }
-              : undefined,
-          })
-            .then((response) => response.json())
-            .then((json) => ({ prefId, ...json }))
-        )
-      );
-      jsons.push(...subResults);
-      await sleep(1);
-    }
-
-    const totalPopulations = jsons.map(({ prefId, result }) => {
-      const totalPopulation = result.data.find(
-        ({ label }: { label: string }) => label === "総人口"
-      );
-      return { prefId, totalPopulation };
-    });
-
-    return ctx.render({
-      checkedIds: prefIds,
-      totalPopulations: totalPopulations,
-      prefs,
-    });
   },
 };
 
 type Props = {
-  prefs: {
-    message: string | null;
-    result: {
-      prefCode: number;
-      prefName: string;
-    }[];
+  data: {
+    prefs: {
+      message: string | null;
+      result: {
+        prefCode: number;
+        prefName: string;
+      }[];
+    };
   };
-  checkedIds: string[];
-  totalPopulations: {
-    prefId: string;
-    totalPopulation: { label: string; data: { year: number; value: number }[] };
-  }[];
 };
 
-export default function Home({ data }: { data: Props }) {
-  const options = data?.prefs.result.map(({ prefCode, prefName }) => ({
-    id: String(prefCode),
-    name: prefName,
-  }));
-
-  const checkedIds: string[] = data?.checkedIds || [];
-
-  const totalPopulations = data?.totalPopulations ?? [];
-  const xLabels = totalPopulations.length
-    ? totalPopulations[0].totalPopulation.data.map(({ year }) => year)
-    : [];
-  const datasets = totalPopulations.map(({ prefId, totalPopulation }) => {
-    const prefName =
-      options.find(({ id }) => id === prefId)?.name || "不明な県";
-    const values = totalPopulation.data.map(({ value }) => value);
-    return {
-      label: prefName,
-      values,
-      prefId,
-    };
-  });
+export default function index({ data }: Props) {
+  const options = createPrefOptions(data?.prefs);
 
   return (
     <>
@@ -127,47 +229,7 @@ export default function Home({ data }: { data: Props }) {
       </Head>
       <Header />
       <div class="p-4 mx-auto max-w-screen-md">
-        <form method="POST">
-          {options.map(({ id, name }, i) => {
-            return (
-              <>
-                <label htmlFor={id} class="whitespace-nowrap">
-                  <button
-                    type="submit"
-                    value={
-                      checkedIds.includes(id)
-                        ? `${checkedIds.filter((cid) => cid !== id).join(",")}`
-                        : `${id},${checkedIds.join(",")}`
-                    }
-                    name="prefIds"
-                  >
-                    {checkedIds.includes(id) ? (
-                      <input type="checkbox" checked class="relative z-[-1]" />
-                    ) : (
-                      <input type="checkbox" class="relative z-[-1]" />
-                    )}
-                  </button>
-                  {name}
-                </label>
-              </>
-            );
-          })}
-        </form>
-        {totalPopulations && (
-          <Chart
-            type="line"
-            data={{
-              labels: xLabels,
-              datasets: datasets.map(({ label, values, prefId }) => ({
-                label,
-                data: values,
-                borderColor: colors[parseInt(prefId, 10) - 1],
-                borderWidth: 1,
-                fill: false,
-              })),
-            }}
-          />
-        )}
+        <InteractiveGraph options={options} />
       </div>
     </>
   );
