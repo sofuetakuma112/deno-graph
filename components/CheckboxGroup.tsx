@@ -30,19 +30,23 @@ export const CheckboxGroup = ({
   };
 
   return (
-    <form>
-      {options.map((option, index) => {
-        index = index + 1;
+    <form class="flex flex-wrap gap-1">
+      {options.map((option) => {
         return (
-          <label htmlFor={`id_${index}`} key={`key_${index}`}>
+          <div class="flex items-center" key={option.id}>
             <CheckBox
               id={option.id}
               value={option.name}
               onInput={handleInput}
               checked={checkedItems[option.id]}
             />
-            {option.name}
-          </label>
+            <label
+              for={option.id}
+              class="pl-1 text-sm font-medium text-gray-900 dark:text-gray-300 whitespace-nowrap"
+            >
+              {option.name}
+            </label>
+          </div>
         );
       })}
     </form>
