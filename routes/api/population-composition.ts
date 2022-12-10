@@ -29,9 +29,10 @@ export const handler = async (
 ): Promise<Response> => {
   const u = new URL(_req.url);
   const searchParams = u.searchParams;
-  const prefIds = Array.from(searchParams).flatMap(([key, value]) =>
-    key === "prefIds" ? value.split(",") : []
-  );
+
+  const prefIds = searchParams
+    .getAll("prefIds")
+    .flatMap((str) => str.split(","));
 
   const apiPopulationCompositions: ApiPopulationCompositionWithPrefId[] = [];
   const slicedPrefIds = sliceByNumber(prefIds, 5);
