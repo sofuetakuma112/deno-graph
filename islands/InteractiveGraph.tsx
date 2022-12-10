@@ -25,7 +25,7 @@ export default function InteractiveGraph({ options }: Props) {
   const [checkedItems, setCheckedItems] = useState<CheckedItems>({});
   const [xLabels, setXLabels] = useState<number[]>([]);
   const [datasets, setDatasets] = useState<Dataset[]>([]);
-  const [isFetching, setIsFetching] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const chartRef = useRef<Chart>();
   const canvasRef = useRef(null);
 
@@ -35,7 +35,7 @@ export default function InteractiveGraph({ options }: Props) {
         .filter(([_, bool]) => bool)
         .map(([prefId, _]) => prefId);
       if (prefIds.length > 0) {
-        setIsFetching(true);
+        setIsLoading(true);
 
         const totalPopulationAndPrefIds: ApiResponse = await fetch(
           `/api/population-composition?prefIds=${prefIds}`,
@@ -64,7 +64,7 @@ export default function InteractiveGraph({ options }: Props) {
           );
           setXLabels(xLabels);
           setDatasets(datasets);
-          setIsFetching(false);
+          setIsLoading(false);
         }
       } else {
         setDatasets([]);
@@ -97,12 +97,13 @@ export default function InteractiveGraph({ options }: Props) {
           datasets: chartDataSets,
         },
       });
+      setIsLoading(false);
     }
   }, [canvasRef.current, xLabels, datasets]);
 
   return (
     <div>
-      {(isFetching || false) && <Loading />}
+      {isLoading && <Loading />}
       <CheckboxGroup
         options={options}
         checkedItems={checkedItems}
