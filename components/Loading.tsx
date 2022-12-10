@@ -4,7 +4,7 @@ export const Loading = () => (
   >
     <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
     <div class="fixed inset-0 z-10 overflow-y-auto">
-      <div class="flex min-h-full justify-center p-4 text-center sm:items-center sm:p-0">
+      <div class="flex min-h-full justify-center p-4 text-center items-center sm:p-0">
         <svg
           aria-hidden="true"
           class="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600"
