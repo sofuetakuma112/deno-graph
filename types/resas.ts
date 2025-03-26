@@ -10,16 +10,12 @@ export type ApiPopulationComposition = {
   message: string | null;
   result: {
     boundaryYear: number;
-    data: [
-      {
-        label: string;
-        data: [
-          {
-            year: number;
-            value: number;
-          }
-        ];
-      }
-    ];
+    data: {
+      label: string;
+      data: {
+        year: number;
+        value: number;
+      }[];
+    }[];
   };
 };
